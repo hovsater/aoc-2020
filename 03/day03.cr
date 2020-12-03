@@ -9,8 +9,7 @@ class Day03
   def self.part_two
     day3 = new(File.read_lines("./03/input.txt"))
     puts [{1, 1}, {3, 1}, {5, 1}, {7, 1}, {1, 2}]
-      .map { |right, down| day3.solve(right, down) }
-      .product(1_u64)
+      .product(1_u64) { |right, down| day3.solve(right, down) }
   end
 
   def initialize(@layout : Array(String))
