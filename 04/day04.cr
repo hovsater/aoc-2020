@@ -12,10 +12,10 @@ class Day04
     end
 
     def valid?
-      contains_required_properties? && valid_properties?
+      contains_required_properties? && properties_valid?
     end
 
-    private def valid_properties?
+    private def properties_valid?
       properties.all? do |prop, value|
         case prop
         when "byr" then (1920..2002).includes?(value.to_i)
