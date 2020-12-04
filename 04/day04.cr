@@ -1,6 +1,6 @@
 class Day04
   struct Passport
-    REQUIRED_PROPERTIES = ["byr", "ecl", "eyr", "hcl", "hgt", "iyr", "pid"]
+    REQUIRED_PROPERTIES = %w(byr ecl eyr hcl hgt iyr pid)
 
     property properties
 
