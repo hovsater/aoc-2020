@@ -20,14 +20,6 @@ class Graph
     @vertices = {} of String => Vertex
   end
 
-  def add_vertex(name, vertex)
-    @vertices[name] ||= vertex
-  end
-
-  def get_vertex(name)
-    @vertices[name]?
-  end
-
   def sum_weights(vertex)
     vertex.edges.reduce(0) do |memo, (edge, weight)|
       memo + weight + weight * sum_weights(edge)
@@ -44,7 +36,7 @@ graph = Graph.new
 File.read_lines("07/input.txt").each do |line|
   parts = line.split
   bag_name = parts[0] + parts[1]
-  graph.add_vertex(bag_name, graph.get_vertex(bag_name) || Vertex.new(bag_name))
+  graph[bag_name] ||= Vertex.new(bag_name)
   parts[4..].reject(&.includes?("bag")).each_slice(3) do |slice|
     next if slice.size != 3
     contained_bag_name = slice[1] + slice[2]
