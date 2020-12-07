@@ -1,29 +1,20 @@
-TEST_INPUT = <<-EOF.split("\n")
-light red bags contain 1 bright white bag, 2 muted yellow bags.
-dark orange bags contain 3 bright white bags, 4 muted yellow bags.
-bright white bags contain 1 shiny gold bag.
-muted yellow bags contain 2 shiny gold bags, 9 faded blue bags.
-shiny gold bags contain 1 dark olive bag, 2 vibrant plum bags.
-dark olive bags contain 3 faded blue bags, 4 dotted black bags.
-vibrant plum bags contain 5 faded blue bags, 6 dotted black bags.
-faded blue bags contain no other bags.
-dotted black bags contain no other bags.
-EOF
-
 struct Vertex
-  property name, adjacent_vertices
+  property name, edges
 
   def initialize(@name : String)
-    @adjacent_vertices = {} of Vertex => Int32
+    @edges = {} of Vertex => Int32
   end
 
-  def add_adjacent_vertex(vertex, weight)
-    @adjacent_vertices[vertex] = weight if vertex
+  def add_edge(vertex, weight)
+    @edges[vertex] = weight if vertex
   end
 end
 
 class Graph
   property vertices
+
+  delegate :[]=, to: @vertices
+  delegate :[]?, to: @vertices
 
   def initialize
     @vertices = {} of String => Vertex
@@ -37,43 +28,33 @@ class Graph
     @vertices[name]?
   end
 
-  def count_weights(vertex)
-    return 1 if vertex.adjacent_vertices.empty?
-    vertex.adjacent_vertices.reduce(1) do |memo, (adjacent_vertex, weight)|
-      memo + weight * count_weights(adjacent_vertex)
+  def sum_weights(vertex)
+    vertex.edges.reduce(0) do |memo, (edge, weight)|
+      memo + weight + weight * sum_weights(edge)
     end
   end
 
-  def dfs(vertex, name, visisted_verticies = {} of String => Bool)
-    return vertex if vertex.name == name
-
-    visisted_verticies[vertex.name] = true
-
-    vertex.adjacent_vertices.each do |adjacent_vertex, weight|
-      next if visisted_verticies[adjacent_vertex.name]?
-      return adjacent_vertex if adjacent_vertex.name == name
-
-      found_vertex = dfs(adjacent_vertex, name, visisted_verticies)
-      return found_vertex if found_vertex
-    end
+  def dfs(vertex, expected)
+    vertex.edges.find { |edge, _| edge.name == expected || dfs(edge, expected) }
   end
 end
 
 graph = Graph.new
 
 File.read_lines("07/input.txt").each do |line|
-  # TEST_INPUT.each do |line|
   parts = line.split
   bag_name = parts[0] + parts[1]
   graph.add_vertex(bag_name, graph.get_vertex(bag_name) || Vertex.new(bag_name))
   parts[4..].reject(&.includes?("bag")).each_slice(3) do |slice|
-    next if slice.size < 3
-    adjacent_bag_name = slice[1..].join
-    graph.add_vertex(adjacent_bag_name, graph.get_vertex(adjacent_bag_name) || Vertex.new(adjacent_bag_name))
-    graph.get_vertex(bag_name).try &.add_adjacent_vertex(graph.get_vertex(adjacent_bag_name), slice[0].to_i)
+    next if slice.size != 3
+    contained_bag_name = slice[1] + slice[2]
+    graph[contained_bag_name] ||= Vertex.new(contained_bag_name)
+    graph[bag_name]?.try &.add_edge(graph[contained_bag_name]?, slice[0].to_i)
   end
 end
 
 # p1
-pp graph.vertices.values.count { |v| graph.dfs(v, "shinygold") } - 1
-pp graph.count_weights(graph.vertices["shinygold"]) - 1
+pp graph.vertices.values.count { |v| graph.dfs(v, "shinygold") }
+
+# p2
+pp graph.sum_weights(graph.vertices["shinygold"])
