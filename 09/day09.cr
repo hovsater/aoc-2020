@@ -7,14 +7,19 @@ end
 def part2(input, preamble)
   target = part1(input, preamble) || 0
 
-  input.each_index do |i|
-    sum = 0
-    nums = input[i..].take_while do |n|
-      sum += n
-      sum < target
-    end
+  s = e = 0
+  sum = input[s]
 
-    return nums.minmax.sum if sum == target
+  loop do
+    if sum < target
+      e += 1
+      sum += input[e]
+    elsif sum > target
+      sum -= input[s]
+      s += 1
+    else
+      return input[s..(e + 1)].minmax.sum
+    end
   end
 end
 
