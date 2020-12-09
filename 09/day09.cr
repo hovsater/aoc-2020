@@ -1,5 +1,5 @@
 def part1(input, preamble)
-  input.map(&.to_u64).reverse_each.each_cons(preamble + 1, reuse: true) do |a|
+  input.reverse_each.each_cons(preamble + 1, reuse: true) do |a|
     a[1..].combinations(2).map(&.sum).includes?(a[0]) || return a[0]
   end
 end
