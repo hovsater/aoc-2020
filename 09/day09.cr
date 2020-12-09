@@ -6,20 +6,10 @@ end
 
 def part2(input, preamble)
   target = part1(input, preamble) || 0
-
-  s = e = 0
-  sum = input[s]
-
-  loop do
-    if sum < target
-      e += 1
-      sum += input[e]
-    elsif sum > target
-      sum -= input[s]
-      s += 1
-    else
-      return input[s..(e + 1)].minmax.sum
-    end
+  input.each_index do |i|
+    sum = 0
+    seq = input[i..].take_while { |n| (sum += n) < target }
+    return seq.minmax.sum if sum == target
   end
 end
 
