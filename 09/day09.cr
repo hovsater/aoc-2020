@@ -1,6 +1,6 @@
 def part1(input, preamble)
-  input.reverse_each.each_cons(preamble + 1, reuse: true) do |a|
-    a[1..].combinations(2).map(&.sum).includes?(a[0]) || return a[0]
+  input.reverse_each.each_cons(preamble + 1, reuse: true) do |e|
+    e[1..].combinations(2).any? { |(a, b)| a + b == e[0] } || return e[0]
   end
 end
 
